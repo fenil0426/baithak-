@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baithack — Taste of Kulhad | Order</title>
+<meta name="description" content="Browse the Baithack menu, get dish ideas for your mood, and build your order. Chai, coffee, sandwiches and more. Borivali West, Mumbai.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f0e0d; --bg-alt:#171412; --card:#1c1815; --card-hover:#231e1a;
+    --gold:#d9a441; --gold-soft:#f0c878; --rose:#e8536b; --cream:#f4ead9;
+    --muted:#a89a86; --line:#332c25;
+    --plate:min(76vw,430px);
+    --hdr:108px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+    color:var(--cream);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(217,164,65,.09), transparent 40%),
+      radial-gradient(circle at 90% 25%, rgba(232,83,107,.07), transparent 40%),
+      var(--bg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  button,input,textarea,select{font-family:inherit;color:inherit;}
+  button{cursor:pointer;}
+  a{color:inherit;text-decoration:none;}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .hidden{display:none !important;}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+  /* TOP BAR */
+  .top{
+    position:sticky;top:0;z-index:60;
+    background:rgba(15,14,13,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 8px;max-width:1180px;margin:0 auto;}
+  .tabs{display:flex;gap:8px;padding:0 14px 10px;max-width:1180px;margin:0 auto;}
+  .tab{
+    flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:9px 8px;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;
+    transition:all .2s;
+  }
+  .tab:hover{color:var(--cream);border-color:var(--gold);}
+  .tab[aria-current="true"]{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border-color:transparent;font-weight:600;box-shadow:0 4px 14px rgba(217,164,65,.25);}
+  @media(max-width:430px){.tab{font-size:12px;padding:9px 4px;gap:4px;}.tabs{gap:6px;padding:0 10px 10px;}}
+  @media(max-width:370px){.tab .ti{display:none;}}
+  @media(min-width:720px){.tab{font-size:14px;padding:10px 14px;}.tabs{justify-content:center;}.tab{flex:0 1 190px;}}
+  .logo{font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:22px;
+    background:linear-gradient(90deg,var(--gold-soft),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .logo small{display:block;white-space:nowrap;font-family:'Poppins',sans-serif;font-weight:500;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);-webkit-text-fill-color:var(--muted);margin-top:-2px;}
+  .cart-btn{
+    position:relative;display:flex;align-items:center;gap:10px;
+    background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border:none;
+    border-radius:999px;padding:9px 16px;font-weight:600;font-size:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);transition:transform .2s;
+  }
+  .cart-btn:hover{transform:translateY(-2px);}
+  .cart-btn.bump{animation:bump .5s ease;}
+  @keyframes bump{30%{transform:scale(1.18);}60%{transform:scale(.95);}100%{transform:scale(1);}}
+  .cart-count{background:#171412;color:var(--gold-soft);border-radius:999px;min-width:22px;height:22px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;padding:0 6px;}
+
+  /* STAGE */
+  .stage{max-width:1180px;margin:0 auto;padding:26px 16px 10px;}
+  .stage-head{text-align:center;margin-bottom:6px;}
+  .eyebrow{font-size:12px;letter-spacing:5px;text-transform:uppercase;color:var(--muted);}
+  .stage-grid{
+    display:grid;gap:18px;align-items:center;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:980px){
+    .stage-grid{grid-template-columns:230px minmax(0,1fr) 340px;gap:26px;min-height:560px;}
+  }
+  .dish-list{list-style:none;display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none;order:3;transition:opacity .3s;}
+  .dish-list::-webkit-scrollbar{display:none;}
+  @media(min-width:980px){.dish-list{flex-direction:column;overflow:visible;order:0;}}
+  .dish-list button{
+    flex:0 0 auto;display:flex;align-items:center;gap:12px;width:100%;min-width:190px;text-align:left;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;
+    transition:border-color .2s,background .2s,transform .2s;
+  }
+  .dish-list button:hover{border-color:var(--gold);transform:translateX(3px);}
+  .dish-list button[aria-current="true"]{border-color:var(--gold);background:var(--card-hover);box-shadow:0 0 0 2px rgba(217,164,65,.18);}
+  .thumb{width:44px;height:44px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font-size:22px;
+    background:radial-gradient(circle at 35% 30%,#2b2622,#14110f 70%);box-shadow:inset 0 0 0 2px rgba(217,164,65,.4);
+    background-size:cover;background-position:center;}
+  .thumb.has-img{font-size:0;}
+  .dl-name{font-size:13.5px;font-weight:500;line-height:1.25;}
+  .dl-price{font-size:12px;color:var(--gold-soft);margin-top:2px;}
+
+  .plate-area{position:relative;display:grid;place-items:center;perspective:1100px;min-height:calc(var(--plate) + 40px);order:1;}
+  .plate-holder{
+    position:relative;width:var(--plate);height:var(--plate);
+    transition:transform .18s ease-out;transform-style:preserve-3d;
+  }
+  .plate{position:absolute;inset:0;}
+  .plate-spin{position:absolute;inset:0;border-radius:50%;animation:spin 28s linear infinite;}
+  .plate-area:hover .plate-spin{animation-play-state:paused;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .plate-fb{
+    position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;
+    background:radial-gradient(circle at 35% 30%,#2e2823,#15120f 70%);
+    box-shadow:inset 0 0 0 12px #1b1713,inset 0 0 0 14px rgba(217,164,65,.55),inset 0 0 70px rgba(0,0,0,.75),0 36px 60px rgba(0,0,0,.6);
+  }
+  .plate-fb::after{content:"";position:absolute;inset:15%;border-radius:50%;border:2px dashed rgba(217,164,65,.35);}
+  .plate-fb::before{content:"";position:absolute;inset:27%;border-radius:50%;border:1px solid rgba(217,164,65,.22);}
+  .plate-fb .emo{font-size:calc(var(--plate) * .3);filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));}
+  .plate-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;
+    filter:drop-shadow(0 30px 40px rgba(0,0,0,.55));}
+  .plate.has-img .plate-fb{display:none;}
+  .plate-area:hover .plate-holder{filter:drop-shadow(0 0 40px rgba(217,164,65,.28));}
+  .arrow{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+    width:46px;height:46px;border-radius:50%;border:1px solid var(--line);
+    background:rgba(28,24,21,.85);backdrop-filter:blur(6px);font-size:20px;
+    transition:border-color .2s,transform .2s;
+  }
+  .arrow:hover{border-color:var(--gold);transform:translateY(-50%) scale(1.08);}
+  .arrow.prev{left:0;} .arrow.next{right:0;}
+  .plate-hint{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11.5px;color:var(--muted);}
+  .photo-note{font-size:11px;color:var(--muted);margin-top:6px;}
+
+  .dish-info{order:2;text-align:center;transition:opacity .3s;}
+  @media(min-width:980px){.dish-info{text-align:left;}}
+  .stage-grid.focus .dish-info,.stage-grid.focus .dish-list{opacity:.28;}
+  .counter{font-size:12px;letter-spacing:3px;color:var(--muted);}
+  .dish-info h2{font-family:'Playfair Display',Georgia,serif;font-size:clamp(28px,5vw,40px);line-height:1.1;margin:6px 0 10px;color:var(--gold-soft);}
+  .dish-info p.desc{color:var(--muted);font-size:14.5px;line-height:1.6;max-width:420px;margin:0 auto;}
+  @media(min-width:980px){.dish-info p.desc{margin:0;}}
+  .vchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0 4px;}
+  @media(min-width:980px){.vchips{justify-content:flex-start;}}
+  .vchip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--muted);transition:all .2s;}
+  .vchip:hover{border-color:var(--gold);color:var(--cream);}
+  .vchip[aria-pressed="true"]{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border-color:transparent;font-weight:600;}
+  .big-price{font-size:30px;font-weight:700;color:var(--cream);margin:12px 0;}
+  .primary{
+    background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border:none;border-radius:999px;
+    padding:14px 28px;font-weight:600;font-size:15px;box-shadow:0 8px 22px rgba(217,164,65,.25);transition:transform .2s,box-shadow .2s;
+  }
+  .primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(217,164,65,.35);}
+  .dots{display:flex;gap:7px;justify-content:center;margin-top:18px;}
+  @media(min-width:980px){.dots{justify-content:flex-start;}}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;transition:all .3s;}
+  .dot.on{background:var(--gold);width:24px;border-radius:6px;}
+
+  /* SECTIONS */
+  .sec-wrap{max-width:1000px;margin:0 auto;padding:46px 16px 0;scroll-margin-top:calc(var(--hdr) - 30px);}
+  .stage{scroll-margin-top:var(--hdr);}
+  .sec-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(26px,5vw,34px);color:var(--gold-soft);text-align:center;}
+  .sec-sub{color:var(--muted);text-align:center;font-size:14px;margin:6px auto 22px;max-width:520px;}
+
+  /* PICKER */
+  .pk{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px 20px;box-shadow:0 14px 40px rgba(0,0,0,.35);}
+  @media(min-width:640px){.pk{padding:32px 34px;}}
+  .pk-prog{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;}
+  .pk-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted);transition:all .3s;}
+  .pk-dot.active{background:var(--gold);border-color:var(--gold);color:#171412;transform:scale(1.08);}
+  .pk-dot.done{background:#5f7d5a;border-color:#5f7d5a;color:#fff;}
+  .pk-bar{width:34px;height:3px;border-radius:3px;background:var(--line);}
+  .pk-bar.done{background:#5f7d5a;}
+  .pk-step{display:none;} .pk-step.show{display:block;animation:rise .45s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .pk h3{font-family:'Playfair Display',Georgia,serif;font-size:clamp(20px,4vw,25px);margin-bottom:4px;}
+  .pk .sub{color:var(--muted);font-size:13.5px;margin-bottom:16px;}
+  .opts{display:grid;gap:12px;}
+  @media(min-width:640px){.opts{grid-template-columns:repeat(3,1fr);}}
+  .opt{text-align:left;background:var(--bg-alt);border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:flex-start;transition:all .2s;}
+  @media(min-width:640px){.opt{flex-direction:column;gap:6px;}}
+  .opt:hover{border-color:var(--gold);transform:translateY(-3px);}
+  .opt[aria-pressed="true"]{border-color:var(--gold);background:var(--card-hover);box-shadow:0 0 0 3px rgba(217,164,65,.16);}
+  .opt .emo{font-size:26px;line-height:1;} .opt .t{font-weight:600;font-size:14.5px;} .opt .d{font-size:12px;color:var(--muted);line-height:1.4;}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:16px;}
+  .chip{background:var(--bg-alt);border:2px solid var(--line);border-radius:999px;padding:9px 15px;font-size:13.5px;font-weight:500;transition:all .2s;}
+  .chip:hover{border-color:var(--gold);}
+  .chip[aria-pressed="true"]{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border-color:transparent;font-weight:600;}
+  textarea{width:100%;min-height:78px;resize:vertical;background:var(--bg-alt);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px;}
+  textarea:focus{outline:none;border-color:var(--gold);}
+  textarea::placeholder{color:#6f6354;}
+  .lbl{display:block;font-size:13.5px;font-weight:500;margin-bottom:7px;}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;}
+  .pk-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap;}
+  .pk-nav-right{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+  @media(max-width:480px){
+    .pk-nav{flex-direction:column-reverse;align-items:stretch;}
+    .pk-nav-right{margin-left:0;width:100%;flex-direction:column;}
+    .pk-nav-right .btn{width:100%;}
+    .pk-nav > .btn.ghost{align-self:center;}
+  }
+  .btn{border:none;border-radius:999px;padding:12px 24px;font-size:14.5px;font-weight:600;transition:all .2s;}
+  .btn.go{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;}
+  .btn.go:hover:not(:disabled){transform:translateY(-2px);}
+  .btn.go:disabled{background:#3a332b;color:#7a6d5c;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--muted);padding:12px 10px;}
+  .btn.outline{background:transparent;border:2px solid var(--gold);color:var(--gold-soft);}
+  .vibe-line{display:inline-block;background:rgba(217,164,65,.1);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;color:var(--gold-soft);margin-bottom:14px;}
+  .results{display:grid;gap:12px;}
+  .pick{background:var(--bg-alt);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;gap:14px;opacity:0;animation:rise .5s ease forwards;transition:border-color .2s,transform .2s;}
+  .pick:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .pick .big{font-size:34px;line-height:1;flex:0 0 auto;}
+  .pick .name{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:700;line-height:1.25;}
+  .pick .why{font-size:13.3px;color:var(--muted);margin-top:5px;line-height:1.55;}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+  .tag{font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:999px;}
+  .tag.vibe{background:rgba(217,164,65,.16);color:var(--gold-soft);}
+  .tag.cafe{background:rgba(95,125,90,.25);color:#a9d3a2;}
+  .tag.pair{background:rgba(232,83,107,.18);color:#f3a0ae;}
+  .addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .addrow select{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 10px;font-size:12.5px;}
+  .mini-add{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border:none;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:600;}
+  .note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.55;}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+
+  /* MENU */
+  .controls{position:sticky;top:var(--hdr);z-index:50;background:rgba(15,14,13,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 4px;margin:0 -4px 6px;}
+  #search{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--cream);font-size:15px;outline:none;}
+  #search:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,164,65,.15);}
+  #search::placeholder{color:var(--muted);}
+  .mchips{display:flex;gap:8px;overflow-x:auto;padding-top:10px;scrollbar-width:none;}
+  .mchips::-webkit-scrollbar{display:none;}
+  .mchip{flex:0 0 auto;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap;transition:all .2s;}
+  .mchip:hover{color:var(--cream);border-color:var(--gold);}
+  .mchip.active{background:linear-gradient(120deg,var(--gold),var(--rose));color:#171412;border-color:transparent;font-weight:600;}
+  .section{margin-bottom:34px;scroll-margin-top:calc(var(--hdr) + 100px);}
+  .section-head{display:flex;align-items:center;gap:14px;margin:18px 0 14px;}
+  .section-head h3{font-family:'Playfair Display',Georgia,serif;font-size:25px;color:var(--gold-soft);white-space:nowrap;}
+  .section-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
+  .section-note{font-size:12.5px;color:var(--rose);margin:-6px 0 12px;font-weight:500;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:12px;}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:transform .15s,border-color .15s,background .15s;}
+  .item:hover{background:var(--card-hover);border-color:var(--gold);transform:translateY(-2px);}
+  .item-name{font-size:14.5px;font-weight:500;line-height:1.35;}
+  .vbtns{display:flex;gap:7px;flex:0 0 auto;}
+  .addv{display:flex;flex-direction:column;align-items:center;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:6px 10px;min-width:54px;transition:all .2s;}
+  .addv:hover{border-color:var(--gold);background:rgba(217,164,65,.1);}
+  .addv:active{transform:scale(.95);}
+  .addv .vl{font-size:10px;color:var(--muted);}
+  .addv .vp{font-size:13.5px;font-weight:700;color:var(--gold-soft);}
+  .addv .plus{font-size:11px;color:var(--rose);font-weight:700;line-height:1;}
+  .mrp{font-size:12.5px;color:var(--muted);}
+  .no-results{text-align:center;color:var(--muted);padding:30px 0;display:none;}
+
+  footer{max-width:1000px;margin:56px auto 0;padding:30px 20px 50px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px;line-height:1.8;}
+  footer .fbrand{font-family:'Playfair Display',Georgia,serif;color:var(--gold-soft);font-size:20px;font-weight:700;margin-bottom:6px;}
+  footer a{color:var(--gold-soft);font-weight:600;}
+
+  /* DRAWER */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:90;}
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--bg-alt);border-left:1px solid var(--line);z-index:100;
+    transform:translateX(102%);transition:transform .38s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;}
+  .drawer.open{transform:none;}
+  .dr-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);}
+  .dr-head h3{font-family:'Playfair Display',Georgia,serif;font-size:22px;color:var(--gold-soft);}
+  .x{background:transparent;border:1px solid var(--line);border-radius:50%;width:36px;height:36px;font-size:16px;}
+  .x:hover{border-color:var(--gold);}
+  .dr-body{flex:1;overflow-y:auto;padding:14px 20px;}
+  .empty{text-align:center;color:var(--muted);padding:60px 10px;font-size:14px;}
+  .line{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);}
+  .line .info{flex:1;min-width:0;}
+  .line .nm{font-size:14px;font-weight:500;line-height:1.3;}
+  .line .vr{font-size:12px;color:var(--muted);}
+  .qty{display:flex;align-items:center;gap:8px;}
+  .qty button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:15px;line-height:1;}
+  .qty button:hover{border-color:var(--gold);}
+  .qty span{min-width:18px;text-align:center;font-weight:600;font-size:14px;}
+  .lt{width:62px;text-align:right;font-weight:600;color:var(--gold-soft);font-size:14px;}
+  .dr-foot{border-top:1px solid var(--line);padding:16px 20px 20px;}
+  .tot{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:6px;}
+  .tot span:last-child{color:var(--gold-soft);}
+  .dr-note{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;}
+  .link-btn{background:none;border:none;color:var(--muted);font-size:12.5px;text-decoration:underline;}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:var(--card);border:1px solid var(--gold);color:var(--cream);padding:10px 18px;border-radius:999px;font-size:13.5px;opacity:0;pointer-events:none;transition:all .3s;z-index:200;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  #topBtn{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:none;background:var(--card);border:1px solid var(--line);font-size:16px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:55;}
+  #topBtn.show{opacity:1;pointer-events:auto;}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+    html{scroll-behavior:auto;}
+    .pick{opacity:1;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top" id="topbar">
+  <div class="top-row">
+    <a href="#" class="logo" aria-label="Baithack home">Baithack<small>Taste of Kulhad</small></a>
+    <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+      <span aria-hidden="true">🛒</span>
+      <span class="cart-count" id="cartCount">0</span>
+      <span id="cartBtnTotal">₹0</span>
+    </button>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Jump to section">
+    <button type="button" class="tab" data-target="dishes"><span class="ti" aria-hidden="true">🍵</span>Today's Pick</button>
+    <button type="button" class="tab" data-target="picker"><span class="ti" aria-hidden="true">🎲</span>Randomizer</button>
+    <button type="button" class="tab" data-target="menu"><span class="ti" aria-hidden="true">📋</span>Menu</button>
+  </nav>
+</header>
+
+<!-- FEATURED STAGE -->
+<section class="stage" id="dishes" aria-label="Featured dishes">
+  <div class="stage-head"><div class="eyebrow">Today's picks</div></div>
+  <div class="stage-grid" id="stageGrid">
+    <ul class="dish-list" id="dishList" aria-label="All featured dishes"></ul>
+
+    <div class="plate-area" id="plateArea">
+      <button class="arrow prev" id="prev" aria-label="Previous dish">&#8592;</button>
+      <div class="plate-holder" id="holder"></div>
+      <button class="arrow next" id="next" aria-label="Next dish">&#8594;</button>
+      <div class="plate-hint">Hover to pause &middot; swipe, scroll or use arrow keys</div>
+    </div>
+
+    <div class="dish-info" id="dishInfo" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- MOOD PICKER -->
+<section class="sec-wrap" id="picker" aria-label="Food and mood picker">
+  <h2 class="sec-title">Not sure what to order?</h2>
+  <p class="sec-sub">Tell us what you eat and how you feel. We'll suggest 3 things, and anything on our menu can go straight to your cart.</p>
+  <div class="pk">
+    <div class="pk-prog" aria-label="Progress">
+      <div class="pk-dot active" id="pd1">1</div><div class="pk-bar" id="pb1"></div>
+      <div class="pk-dot" id="pd2">2</div><div class="pk-bar" id="pb2"></div>
+      <div class="pk-dot" id="pd3">3</div>
+    </div>
+
+    <div class="pk-step show" id="pk1">
+      <h3>What do you eat?</h3>
+      <p class="sub">We'll keep every suggestion in line with your diet.</p>
+      <div class="opts" role="group" aria-label="Dietary preference" id="dietOpts">
+        <button class="opt" type="button" data-diet="veg" aria-pressed="false"><span class="emo" aria-hidden="true">🟢</span><span><span class="t">Pure Vegetarian</span><br><span class="d">No meat, fish or egg</span></span></button>
+        <button class="opt" type="button" data-diet="jain" aria-pressed="false"><span class="emo" aria-hidden="true">🌱</span><span><span class="t">Jain</span><br><span class="d">No onion, garlic or root vegetables</span></span></button>
+        <button class="opt" type="button" data-diet="nonveg" aria-pressed="false"><span class="emo" aria-hidden="true">🍗</span><span><span class="t">Non-Vegetarian</span><br><span class="d">No non-veg items on our menu yet</span></span></button>
+      </div>
+      <div class="pk-nav"><span></span><button class="btn go" type="button" id="pkTo2" disabled>Next</button></div>
+    </div>
+
+    <div class="pk-step" id="pk2">
+      <h3>How are you feeling?</h3>
+      <p class="sub">Pick a vibe, type your own, or do both.</p>
+      <div class="chips" role="group" aria-label="Mood" id="moodChips"></div>
+      <label class="lbl" for="moodText">How are you feeling right now?</label>
+      <textarea id="moodText" maxlength="200" placeholder="e.g. It's pouring outside and I've got an exam tomorrow..."></textarea>
+      <p class="hint">Optional if you've picked a vibe above.</p>
+      <div class="pk-nav">
+        <button class="btn ghost" type="button" id="pkBack1">&larr; Back</button>
+        <span class="pk-nav-right">
+          <button class="btn outline" type="button" id="pkSurprise">🎲 Surprise me</button>
+          <button class="btn go" type="button" id="pkTo3" disabled>Get my picks</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="pk-step" id="pk3" aria-live="polite">
+      <h3>Your picks</h3>
+      <p class="sub" id="dietLine"></p>
+      <div class="vibe-line" id="vibeLine"></div>
+      <div class="results" id="results"></div>
+      <p class="note" id="pkNote"></p>
+      <div class="actions">
+        <button class="btn go" type="button" id="pkShuffle">Show me different picks</button>
+        <button class="btn outline" type="button" id="pkRestart">Start over</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FULL MENU -->
+<section class="sec-wrap" id="menu" aria-label="Full menu">
+  <h2 class="sec-title">The full menu</h2>
+  <p class="sec-sub">Tap a price to add it to your cart.</p>
+  <div class="controls">
+    <input id="search" type="text" placeholder="Search the menu… e.g. cold coffee, panini" aria-label="Search the menu">
+    <nav class="mchips" id="mchips" aria-label="Menu categories"></nav>
+  </div>
+  <div id="main"></div>
+  <div class="no-results" id="noResults">No items match your search 🔍</div>
+</section>
+
+<footer>
+  <div class="fbrand">Baithack — Taste of Kulhad</div>
+  <div>Shop No. 6 Bhushan Heritage, CHSL, Padma Nagar, Chikuwadi, Near Phoenix Hospital, Borivali West, Mumbai – 400092</div>
+  <div>🕚 11 AM – 11 PM, everyday &nbsp;|&nbsp; 📞 +91 93213 91997 &nbsp;|&nbsp; +91 93266 65164 / 79779 46833</div>
+  <div>✉️ support@baithack.com &nbsp;|&nbsp; 🌐 www.baithack.com</div>
+  <div style="margin-top:10px"><a href="https://instagram.com/baithackchikuwadiofficial" target="_blank" rel="noopener">@baithackchikuwadiofficial</a></div>
+  <div style="margin-top:12px;opacity:.65">Menu &amp; prices subject to change. Online ordering is coming soon, so show your cart at the counter.</div>
+</footer>
+
+<button id="topBtn" aria-label="Back to top">↑</button>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Your cart" aria-hidden="true">
+  <div class="dr-head"><h3>Your cart</h3><button class="x" id="closeCart" aria-label="Close cart">✕</button></div>
+  <div class="dr-body" id="drBody"></div>
+  <div class="dr-foot" id="drFoot">
+    <div class="tot"><span>Total</span><span id="drTotal">₹0</span></div>
+    <p class="dr-note">Online ordering and payment aren't live yet. Show this cart at the counter to order.</p>
+    <button class="link-btn" id="clearCart" type="button">Clear cart</button>
+  </div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => '₹' + Number(n).toLocaleString('en-IN');
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+
+/* =============== MENU DATA =============== */
+const MENU = [
+  { cat: "Chai", type: "sm", note: "*Chai Without Sugar — ₹10 extra", items: [
+    ["Adrak Chai",30,70],["Elaichi Chai",30,70],["Masala Chai",35,80],["Chocolate Chai",35,80],
+    ["Rose Chai",35,80],["Pan Chai",35,80],["Saffron Chai",40,90],["Ukala",40,90]
+  ]},
+  { cat: "Cold Coffee", type: "single", note: "*Without Sugar — ₹10 extra   *Add a scoop of ice-cream — ₹30 extra", items: [
+    ["Cold Coffee",130],["Chocolate Cold Coffee",150],["Strong Cold Coffee",150],["Brownie Cold Coffee",180],
+    ["Caramel Cold Coffee",200],["Irish Cold Coffee",200],["Hazelnut Cold Coffee",200],["Ultimate Cold Coffee",200],
+    ["Baithack Spl. Cold Coffee",220]
+  ]},
+  { cat: "Coffee", type: "sm", note: "*Coffee Without Sugar — ₹10 extra", items: [
+    ["Hot Coffee",35,70],["Strong Hot Coffee",40,80],["Chocolate Hot Coffee",40,90],["Strong Choco Coffee",50,100],
+    ["Caramel Coffee",null,100],["Irish Coffee",null,100],["Hazelnut Coffee",null,100],["Hot Chocolate",null,100],
+    ["Black Coffee",null,50]
+  ]},
+  { cat: "Green Tea", type: "single", items: [
+    ["Tulsi Ginger",90],["Strawberry Hibiscus",100],["Kashmiri Kahwa",100],["Butterfly Pea",110]
+  ]},
+  { cat: "Black Tea", type: "single", note: "*Tea With Honey — ₹10 extra", items: [
+    ["Black Tea",40],["Lemon Black Tea",50],["Lemon Ginger Black Tea",60],["Special Black Tea",60]
+  ]},
+  { cat: "Sandwich", type: "single", note: "Regular / Cheese  ·  *Any sandwich in brown bread — ₹30 extra", items: [
+    ["Veg. Mayo / Cheese","120/150"],["Grill Veggies / Cheese","120/150"],["Chilli Chatakdar / Cheese","120/150"],
+    ["Thousand Island / Cheese","130/160"],["Corn Mayo / Cheese","130/160"],["Paneer Majedar / Cheese","140/170"],
+    ["Tandoori Tadka / Cheese","140/170"],["Paneer Kadai / Cheese","150/180"]
+  ]},
+  { cat: "Panini Sandwich", type: "single", items: [
+    ["Coleslaw Panini",170],["Veg Panini",190],["Paneer Tandoori",220],["Paneer Tikka",220]
+  ]},
+  { cat: "Extra", type: "single", items: [
+    ["Mayo",30],["Salsa",30],["Cheese",30],["Toppings",30],["Jalapeno",30],["Chipotle",30],["Water Bottle","MRP"]
+  ]}
+];
+
+const ITEMS = [], BY_ID = {};
+MENU.forEach(sec => sec.items.forEach(it => {
+  let name = it[0], variants = [], mrp = false;
+  if (sec.type === 'sm') {
+    if (it[1] != null) variants.push({ l:'S', p:it[1] });
+    if (it[2] != null) variants.push({ l:'M', p:it[2] });
+  } else if (typeof it[1] === 'string' && /^\d+\/\d+$/.test(it[1])) {
+    const [a,b] = it[1].split('/').map(Number);
+    name = name.replace(/\s*\/\s*Cheese$/, '');
+    variants = [{ l:'Regular', p:a }, { l:'Cheese', p:b }];
+  } else if (typeof it[1] === 'number') {
+    variants = [{ l:'', p:it[1] }];
+  } else { mrp = true; }
+  const obj = { id: slug(sec.cat) + '__' + slug(name), cat: sec.cat, name, variants, mrp };
+  ITEMS.push(obj); BY_ID[obj.id] = obj;
+}));
+const findItem = (cat, name) => ITEMS.find(i => i.cat === cat && i.name === name);
+const vIndex = (item, label) => { const i = item.variants.findIndex(v => v.l === label); return i < 0 ? 0 : i; };
+const vText = (item, v) => (item.variants[v].l && item.variants.length > 1) ? item.variants[v].l : '';
+
+/* =============== FEATURED DISHES =============== */
+const DISHES = [
+  { cat:"Chai", name:"Masala Chai", title:"Masala Chai", img:"masala-chai", emoji:"🍵", desc:"Kulhad chai with warming spices, served hot." },
+  { cat:"Cold Coffee", name:"Brownie Cold Coffee", title:"Brownie Cold Coffee", img:"brownie-cold-coffee", emoji:"☕", desc:"Cold coffee with a chocolate brownie twist." },
+  { cat:"Panini Sandwich", name:"Paneer Tikka", title:"Paneer Tikka Panini", img:"paneer-tikka-panini", emoji:"🥪", desc:"A hot grilled panini with paneer tikka." },
+  { cat:"Cold Coffee", name:"Baithack Spl. Cold Coffee", title:"Baithack Special Cold Coffee", img:"baithack-special-cold-coffee", emoji:"🧋", desc:"Our house special cold coffee." },
+  { cat:"Sandwich", name:"Thousand Island", title:"Thousand Island Sandwich", img:"thousand-island-sandwich", emoji:"🥪", desc:"A sandwich with thousand island flavour. Add cheese if you like." },
+  { cat:"Green Tea", name:"Kashmiri Kahwa", title:"Kashmiri Kahwa", img:"kashmiri-kahwa", emoji:"🌸", desc:"A fragrant Kashmiri green tea." }
+];
+DISHES.forEach(d => { d.item = findItem(d.cat, d.name); });
+
+/* =============== CART =============== */
+const KEY = 'baithack_cart_v1';
+let cart = {};
+function loadCart(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || '{}') || {};
+    Object.entries(raw).forEach(([k,q]) => {
+      const [id,v] = k.split('|'); const it = BY_ID[id];
+      if (it && it.variants[+v] && Number.isInteger(q) && q > 0) cart[k] = Math.min(q, 99);
+    });
+  } catch(e){ cart = {}; }
+}
+function saveCart(){ try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch(e){} }
+function lines(){
+  return Object.entries(cart).map(([k,q]) => {
+    const [id,v] = k.split('|'); const it = BY_ID[id];
+    return it ? { k, it, v:+v, vr: it.variants[+v], q } : null;
+  }).filter(Boolean);
+}
+const cartCount = () => lines().reduce((s,l) => s + l.q, 0);
+const cartTotal = () => lines().reduce((s,l) => s + l.q * l.vr.p, 0);
+
+let shownTotal = 0, tween = null;
+function setTotals(n){ $('cartBtnTotal').textContent = fmt(n); $('drTotal').textContent = fmt(n); }
+function animateTotal(to){
+  if (tween) cancelAnimationFrame(tween);
+  if (reduced) { shownTotal = to; setTotals(to); return; }
+  const from = shownTotal, t0 = performance.now(), dur = 550;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    setTotals(Math.round(from + (to - from) * e));
+    if (p < 1) tween = requestAnimationFrame(step); else shownTotal = to;
+  };
+  tween = requestAnimationFrame(step);
+  setTimeout(() => { if (cartTotal() === to) { shownTotal = to; setTotals(to); } }, dur + 150);
+}
+
+function renderCart(){
+  const L = lines();
+  $('cartCount').textContent = cartCount();
+  animateTotal(cartTotal());
+  const body = $('drBody');
+  body.innerHTML = '';
+  $('drFoot').classList.toggle('hidden', L.length === 0);
+  if (!L.length) { body.innerHTML = '<div class="empty">Your cart is empty.<br>Add something tasty from the menu.</div>'; return; }
+  L.forEach(l => {
+    const row = document.createElement('div'); row.className = 'line';
+    const info = document.createElement('div'); info.className = 'info';
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = l.it.name;
+    const vr = document.createElement('div'); vr.className = 'vr';
+    vr.textContent = (vText(l.it, l.v) ? vText(l.it, l.v) + ' · ' : '') + fmt(l.vr.p) + ' each';
+    info.append(nm, vr);
+    const qty = document.createElement('div'); qty.className = 'qty';
+    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', 'Decrease ' + l.it.name);
+    const num = document.createElement('span'); num.textContent = l.q;
+    const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', 'Increase ' + l.it.name);
+    minus.onclick = () => changeQty(l.k, -1); plus.onclick = () => changeQty(l.k, 1);
+    qty.append(minus, num, plus);
+    const lt = document.createElement('div'); lt.className = 'lt'; lt.textContent = fmt(l.q * l.vr.p);
+    row.append(info, qty, lt);
+    body.appendChild(row);
+  });
+}
+function changeQty(k, d){
+  const q = (cart[k] || 0) + d;
+  if (q <= 0) delete cart[k]; else cart[k] = Math.min(q, 99);
+  saveCart(); renderCart();
+}
+function addToCart(item, v, srcEl){
+  const k = item.id + '|' + v;
+  cart[k] = Math.min((cart[k] || 0) + 1, 99);
+  saveCart(); renderCart();
+  toast('Added ' + item.name + (vText(item, v) ? ' (' + vText(item, v) + ')' : ''));
+  fly(srcEl);
+}
+function bump(){
+  const b = $('cartBtn'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+}
+let toastT;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700);
+}
+
+/* Fly-to-cart: clone the source and arc it into the cart button */
+function fly(src){
+  if (reduced || !src) { bump(); return; }
+  const r = src.getBoundingClientRect(), t = $('cartBtn').getBoundingClientRect();
+  let clone;
+  if (src.classList.contains('plate')) {
+    clone = src.cloneNode(true);
+  } else {
+    clone = document.createElement('div');
+    clone.style.cssText = 'border-radius:50%;background:radial-gradient(circle at 35% 30%,#f0c878,#d9a441 70%);box-shadow:0 6px 16px rgba(0,0,0,.5);';
+  }
+  const size = src.classList.contains('plate') ? r.width : 26;
+  const cx = src.classList.contains('plate') ? r.left : r.left + r.width / 2 - 13;
+  const cy = src.classList.contains('plate') ? r.top : r.top + r.height / 2 - 13;
+  Object.assign(clone.style, { position:'fixed', left:cx+'px', top:cy+'px', width:size+'px', height:size+'px', margin:'0', zIndex:'300', pointerEvents:'none' });
+  document.body.appendChild(clone);
+  const dx = t.left + t.width / 2 - (cx + size / 2), dy = t.top + t.height / 2 - (cy + size / 2);
+  const endScale = 20 / size;
+  const a = clone.animate([
+    { transform:'translate(0,0) scale(1) rotate(0deg)', opacity:1 },
+    { transform:`translate(${dx*0.5}px, ${dy*0.5 - 150}px) scale(${Math.max(0.5, endScale * 3)}) rotate(180deg)`, opacity:1, offset:0.5 },
+    { transform:`translate(${dx}px, ${dy}px) scale(${endScale}) rotate(360deg)`, opacity:.25 }
+  ], { duration: 850, easing: 'cubic-bezier(.5,.05,.3,1)' });
+  let flown = false;
+  const land = () => { if (flown) return; flown = true; clone.remove(); bump(); };
+  a.onfinish = land;
+  setTimeout(land, 1100);
+}
+
+/* Drawer */
+function openCart(){ $('drawer').classList.add('open'); $('overlay').classList.add('show'); $('drawer').setAttribute('aria-hidden','false'); $('closeCart').focus(); }
+function closeCart(){ $('drawer').classList.remove('open'); $('overlay').classList.remove('show'); $('drawer').setAttribute('aria-hidden','true'); $('cartBtn').focus(); }
+$('cartBtn').onclick = openCart; $('closeCart').onclick = closeCart; $('overlay').onclick = closeCart;
+$('clearCart').onclick = () => { cart = {}; saveCart(); renderCart(); };
+
+/* =============== FEATURED STAGE =============== */
+let cur = 0, busy = false, selV = 0;
+const holder = $('holder');
+
+function makePlate(d){
+  const el = document.createElement('div'); el.className = 'plate';
+  el.innerHTML = '<div class="plate-spin"><div class="plate-fb"><span class="emo"></span></div></div>';
+  el.querySelector('.emo').textContent = d.emoji;
+  const img = new Image(); img.alt = ''; img.className = 'plate-img'; img.draggable = false;
+  img.onload = () => el.classList.add('has-img');
+  img.onerror = () => img.remove();
+  img.src = 'images/' + d.img + '.png';
+  el.querySelector('.plate-spin').appendChild(img);
+  return el;
+}
+function buildList(){
+  const ul = $('dishList'); ul.innerHTML = '';
+  DISHES.forEach((d, i) => {
+    const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+    const th = document.createElement('span'); th.className = 'thumb'; th.textContent = d.emoji;
+    const probe = new Image(); probe.onload = () => { th.style.backgroundImage = 'url(images/' + d.img + '.png)'; th.classList.add('has-img'); }; probe.src = 'images/' + d.img + '.png';
+    const tx = document.createElement('span');
+    const n = document.createElement('div'); n.className = 'dl-name'; n.textContent = d.title;
+    const p = document.createElement('div'); p.className = 'dl-price'; p.textContent = 'from ' + fmt(Math.min(...d.item.variants.map(v => v.p)));
+    tx.append(n, p); b.append(th, tx);
+    b.onclick = () => goTo(i);
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+function markList(){
+  document.querySelectorAll('#dishList button').forEach((b, i) => b.setAttribute('aria-current', i === cur ? 'true' : 'false'));
+}
+function renderInfo(){
+  const d = DISHES[cur], it = d.item; selV = 0;
+  const box = $('dishInfo');
+  box.innerHTML = '';
+  const c = document.createElement('div'); c.className = 'counter'; c.textContent = String(cur + 1).padStart(2,'0') + ' / ' + String(DISHES.length).padStart(2,'0') + '  ·  ' + it.cat.toUpperCase();
+  const h = document.createElement('h2'); h.textContent = d.title;
+  const p = document.createElement('p'); p.className = 'desc'; p.textContent = d.desc;
+  box.append(c, h, p);
+  const price = document.createElement('div'); price.className = 'big-price';
+  const setPrice = () => { price.textContent = fmt(it.variants[selV].p); };
+  if (it.variants.length > 1) {
+    const vc = document.createElement('div'); vc.className = 'vchips'; vc.setAttribute('role','group'); vc.setAttribute('aria-label','Size or option');
+    it.variants.forEach((v, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'vchip'; b.textContent = v.l + ' · ' + fmt(v.p);
+      b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+      b.onclick = () => { selV = i; vc.querySelectorAll('.vchip').forEach((x, j) => x.setAttribute('aria-pressed', j === i ? 'true' : 'false')); setPrice(); };
+      vc.appendChild(b);
+    });
+    box.appendChild(vc);
+  }
+  setPrice();
+  const add = document.createElement('button'); add.type = 'button'; add.className = 'primary'; add.textContent = 'Add to order';
+  add.onclick = () => addToCart(it, selV, holder.querySelector('.plate'));
+  const dots = document.createElement('div'); dots.className = 'dots';
+  DISHES.forEach((_, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'dot' + (i === cur ? ' on' : ''); b.setAttribute('aria-label', 'Show dish ' + (i + 1)); b.onclick = () => goTo(i); dots.appendChild(b); });
+  box.append(price, add, dots);
+  if (!box.dataset.noteShown) { box.dataset.noteShown = '1'; }
+  markList();
+}
+function goTo(i, dirOverride){
+  i = (i + DISHES.length) % DISHES.length;
+  if (busy || i === cur) return;
+  const dir = dirOverride || (i > cur ? 1 : -1);
+  busy = true;
+  const old = holder.firstElementChild;
+  cur = i;
+  const nu = makePlate(DISHES[cur]);
+  holder.appendChild(nu);
+  if (reduced) { old && old.remove(); renderInfo(); busy = false; return; }
+  const opt = { duration: 720, easing: 'cubic-bezier(.2,.8,.2,1)' };
+  nu.animate([{ transform:`translateX(${dir*110}%) rotate(${dir*300}deg)`, opacity:0 }, { transform:'translateX(0) rotate(0deg)', opacity:1 }], opt);
+  old.animate([{ transform:'translateX(0) rotate(0deg)', opacity:1 }, { transform:`translateX(${-dir*110}%) rotate(${-dir*300}deg)`, opacity:0 }], { ...opt, fill:'forwards' });
+  const fadeOut = $('dishInfo').animate([{ opacity:1, transform:'translateY(0)' }, { opacity:0, transform:'translateY(8px)' }], { duration:160, fill:'forwards' });
+  setTimeout(() => {
+    fadeOut.cancel();
+    renderInfo();
+    $('dishInfo').animate([{ opacity:0, transform:'translateY(8px)' }, { opacity:1, transform:'translateY(0)' }], { duration:280 });
+  }, 170);
+  setTimeout(() => { old.remove(); busy = false; }, 740);
+}
+const step = d => goTo(cur + d, d);
+$('prev').onclick = () => step(-1); $('next').onclick = () => step(1);
+
+/* Tilt, hover focus, wheel, keys, swipe */
+const area = $('plateArea');
+area.addEventListener('mousemove', e => {
+  if (reduced) return;
+  const r = area.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+  holder.style.transform = `rotateX(${(-py * 12).toFixed(2)}deg) rotateY(${(px * 12).toFixed(2)}deg)`;
+});
+area.addEventListener('mouseleave', () => { holder.style.transform = ''; $('stageGrid').classList.remove('focus'); });
+holder.addEventListener('mouseenter', () => $('stageGrid').classList.add('focus'));
+holder.addEventListener('mouseleave', () => $('stageGrid').classList.remove('focus'));
+let wheelLock = false;
+holder.addEventListener('wheel', e => {
+  if (Math.abs(e.deltaY) < 8) return;
+  e.preventDefault();
+  if (wheelLock) return;
+  wheelLock = true; setTimeout(() => wheelLock = false, 750);
+  step(e.deltaY > 0 ? 1 : -1);
+}, { passive:false });
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (e.key === 'Escape' && $('drawer').classList.contains('open')) { closeCart(); return; }
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  if ($('drawer').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') step(1);
+  if (e.key === 'ArrowLeft') step(-1);
+});
+let tx0 = null;
+area.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, { passive:true });
+area.addEventListener('touchend', e => {
+  if (tx0 === null) return;
+  const dx = e.changedTouches[0].clientX - tx0; tx0 = null;
+  if (Math.abs(dx) > 45) step(dx < 0 ? 1 : -1);
+}, { passive:true });
+
+/* =============== FULL MENU =============== */
+function buildMenu(){
+  const main = $('main'), chipsWrap = $('mchips');
+  MENU.forEach(sec => {
+    const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'mchip'; chip.textContent = sec.cat;
+    chip.onclick = () => $('sec-' + slug(sec.cat)).scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block:'start' });
+    chipsWrap.appendChild(chip);
+
+    const s = document.createElement('section'); s.className = 'section'; s.id = 'sec-' + slug(sec.cat);
+    const head = document.createElement('div'); head.className = 'section-head';
+    head.innerHTML = '<h3></h3><div class="rule"></div>'; head.querySelector('h3').textContent = sec.cat;
+    s.appendChild(head);
+    if (sec.note) { const n = document.createElement('div'); n.className = 'section-note'; n.textContent = sec.note; s.appendChild(n); }
+    const grid = document.createElement('div'); grid.className = 'grid';
+    ITEMS.filter(i => i.cat === sec.cat).forEach(it => {
+      const row = document.createElement('div'); row.className = 'item'; row.dataset.name = it.name.toLowerCase();
+      const nm = document.createElement('div'); nm.className = 'item-name'; nm.textContent = it.name;
+      const vb = document.createElement('div'); vb.className = 'vbtns';
+      if (it.mrp) { const m = document.createElement('span'); m.className = 'mrp'; m.textContent = 'MRP'; vb.appendChild(m); }
+      it.variants.forEach((v, i) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'addv';
+        b.setAttribute('aria-label', 'Add ' + it.name + (v.l ? ' ' + v.l : '') + ' for ' + fmt(v.p));
+        b.innerHTML = (v.l && it.variants.length > 1 ? '<span class="vl"></span>' : '') + '<span class="vp"></span><span class="plus">+</span>';
+        if (v.l && it.variants.length > 1) b.querySelector('.vl').textContent = v.l;
+        b.querySelector('.vp').textContent = fmt(v.p);
+        b.onclick = () => addToCart(it, i, b);
+        vb.appendChild(b);
+      });
+      row.append(nm, vb); grid.appendChild(row);
+    });
+    s.appendChild(grid); main.appendChild(s);
+  });
+}
+$('search').addEventListener('input', () => {
+  const q = $('search').value.trim().toLowerCase(); let any = false;
+  document.querySelectorAll('#main .section').forEach(sec => {
+    let has = false;
+    sec.querySelectorAll('.item').forEach(it => { const m = it.dataset.name.includes(q); it.classList.toggle('hidden', !m); if (m) has = true; });
+    sec.classList.toggle('hidden', !has); if (has) any = true;
+  });
+  $('noResults').style.display = (q && !any) ? 'block' : 'none';
+});
+/* Top tabs: jump straight to a section and highlight the one in view */
+function setHdr(){ document.documentElement.style.setProperty('--hdr', $('topbar').offsetHeight + 'px'); }
+setHdr(); window.addEventListener('resize', setHdr);
+if (window.ResizeObserver) new ResizeObserver(setHdr).observe($('topbar'));
+const TAB_IDS = ['dishes', 'picker', 'menu'];
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => $(t.dataset.target).scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block:'start' });
+});
+function markTab(){
+  const hdr = $('topbar').offsetHeight;
+  let cur = TAB_IDS[0];
+  TAB_IDS.forEach(id => { if ($(id).getBoundingClientRect().top <= hdr + 140) cur = id; });
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = 'menu';
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.target === cur ? 'true' : 'false'));
+}
+
+let lastChip = -2;
+window.addEventListener('scroll', () => {
+  markTab();
+  const chips = Array.from(document.querySelectorAll('.mchip')), all = Array.from(document.querySelectorAll('#main .section'));
+  let idx = -1;
+  const chipLine = $('topbar').offsetHeight + 110;
+  all.forEach((s, i) => { if (!s.classList.contains('hidden') && s.getBoundingClientRect().top <= chipLine) idx = i; });
+  chips.forEach((c, i) => c.classList.toggle('active', i === idx));
+  if (idx !== lastChip) {
+    lastChip = idx;
+    const act = chips[idx], bar = $('mchips');
+    if (act) {
+      const ar = act.getBoundingClientRect(), br = bar.getBoundingClientRect();
+      bar.scrollTo({ left: bar.scrollLeft + (ar.left - br.left) - (br.width - ar.width) / 2, behavior: reduced ? 'auto' : 'smooth' });
+    }
+  }
+  $('topBtn').classList.toggle('show', window.scrollY > 700);
+}, { passive:true });
+$('topBtn').onclick = () => window.scrollTo({ top:0, behavior: reduced ? 'auto' : 'smooth' });
+
+/* ---------- PICKER DATA ----------
+   Every pick is a real item from the Baithack menu.
+   m = [menu category, menu item name, optional size/option label]
+*/
+const MOODS = {
+  cozy:  { label:"Cozy & Rainy",            emoji:"🌧️", keys:["rain","raining","rainy","pouring","downpour","wet","monsoon","cold","cozy","cosy","chilly","winter","drizzle","storm","hot chai","nostalgic"] },
+  tired: { label:"Exhausted / Long Day",    emoji:"😴", keys:["tired","exhausted","drained","long day","sleepy","stress","stressed","sad","low","burnt","burnout","bad day","meh","hungry","heavy"] },
+  party: { label:"Party / Celebration",     emoji:"🎉", keys:["party","celebrate","celebration","birthday","friends","gang","fun","hangout","excited","happy","festival","treat","get together","get-together"] },
+  study: { label:"Late-Night Study / Work", emoji:"📚", keys:["study","studying","exam","exams","assignment","deadline","work","working","coding","project","night","late","focus","grind","sleep deprived","wake"] },
+  chill: { label:"Chill & Relaxed",         emoji:"🧘", keys:["chill","relax","relaxed","calm","peaceful","hot day","summer","heat","hot outside","refresh","light","lazy","sunday","weekend","free"] }
+};
+
+const FOOD = {
+  cozy: {
+    veg: [
+      { e:"🍵", n:"Masala Chai", w:"Rain outside, hot kulhad chai in your hands. This is exactly what a rainy evening is for.", v:"Warm & Soulful", m:["Chai","Masala Chai"] },
+      { e:"🍵", n:"Elaichi Chai", w:"Cardamom-scented chai that feels like a warm blanket on a grey day.", v:"Fragrant & Comforting", m:["Chai","Elaichi Chai"] },
+      { e:"🍫", n:"Hot Chocolate", w:"A cup of warm chocolate for a drizzly, slow evening.", v:"Velvety & Sweet", m:["Coffee","Hot Chocolate"] },
+      { e:"🥪", n:"Paneer Tikka Panini", w:"Grilled hot and melty. A proper hearty bite when it's pouring outside.", v:"Smoky & Melty", m:["Panini Sandwich","Paneer Tikka"] },
+      { e:"🌼", n:"Saffron Chai", w:"A richer, more special chai for when you want something fancier than usual.", v:"Rich & Royal", m:["Chai","Saffron Chai"] },
+      { e:"🌸", n:"Kashmiri Kahwa", w:"A fragrant green tea that warms you gently without feeling heavy.", v:"Fragrant & Soothing", m:["Green Tea","Kashmiri Kahwa"] }
+    ],
+    jain: [
+      { e:"🍵", n:"Elaichi Chai", w:"Cardamom-scented chai that feels like a warm blanket on a grey day.", v:"Fragrant & Comforting", m:["Chai","Elaichi Chai"] },
+      { e:"🌼", n:"Saffron Chai", w:"A richer, more special chai for when you want something fancier than usual.", v:"Rich & Royal", m:["Chai","Saffron Chai"] },
+      { e:"🌹", n:"Rose Chai", w:"Soft, floral and calming. A gentle cup for a rainy day.", v:"Floral & Gentle", m:["Chai","Rose Chai"] },
+      { e:"🍫", n:"Hot Chocolate", w:"A cup of warm chocolate for a drizzly, slow evening.", v:"Velvety & Sweet", m:["Coffee","Hot Chocolate"] },
+      { e:"🌸", n:"Kashmiri Kahwa", w:"A fragrant green tea that warms you gently without feeling heavy.", v:"Fragrant & Soothing", m:["Green Tea","Kashmiri Kahwa"] },
+      { e:"🍫", n:"Chocolate Chai", w:"Chai with a sweet chocolatey twist. Cozy, familiar and easy to love.", v:"Sweet & Cozy", m:["Chai","Chocolate Chai"] }
+    ]
+  },
+  tired: {
+    veg: [
+      { e:"☕", n:"Brownie Cold Coffee", w:"Coffee and chocolate brownie in one cup. A caffeine hit and a sweet reward after a long day.", v:"Rich & Chocolatey", m:["Cold Coffee","Brownie Cold Coffee"] },
+      { e:"☕", n:"Strong Cold Coffee", w:"Extra strong and ice cold, for when you need to wake up fast.", v:"Bold & Awake", m:["Cold Coffee","Strong Cold Coffee"] },
+      { e:"☕", n:"Strong Choco Coffee", w:"Strong hot coffee with chocolate. Comforting and energising at once.", v:"Bold & Comforting", m:["Coffee","Strong Choco Coffee"] },
+      { e:"🥪", n:"Chilli Chatakdar Sandwich (Cheese)", w:"Spicy, tangy and cheesy. A proper bite when you're running on empty.", v:"Tangy & Cheesy", m:["Sandwich","Chilli Chatakdar","Cheese"] },
+      { e:"🥪", n:"Paneer Kadai Sandwich (Cheese)", w:"A filling paneer sandwich for when you need real food, not just a snack.", v:"Hearty & Filling", m:["Sandwich","Paneer Kadai","Cheese"] },
+      { e:"🍫", n:"Chocolate Chai", w:"A sweet chocolatey chai. A gentle pick-me-up when you can't think straight.", v:"Sweet & Comforting", m:["Chai","Chocolate Chai"] }
+    ],
+    jain: [
+      { e:"☕", n:"Cold Coffee", w:"Cold, creamy and quick. Add an ice-cream scoop for ₹30 extra and it becomes a proper treat.", v:"Creamy & Cool", m:["Cold Coffee","Cold Coffee"] },
+      { e:"🍫", n:"Chocolate Cold Coffee", w:"Chocolate and coffee together. An easy way to feel human again.", v:"Sweet & Chocolatey", m:["Cold Coffee","Chocolate Cold Coffee"] },
+      { e:"☕", n:"Strong Cold Coffee", w:"Extra strong and ice cold, for when you need to wake up fast.", v:"Bold & Awake", m:["Cold Coffee","Strong Cold Coffee"] },
+      { e:"🍮", n:"Caramel Cold Coffee", w:"Smooth, sweet caramel coffee as a small reward for getting through the day.", v:"Smooth & Sweet", m:["Cold Coffee","Caramel Cold Coffee"] },
+      { e:"🌰", n:"Hazelnut Cold Coffee", w:"A nutty, creamy cold coffee that feels like a treat.", v:"Nutty & Creamy", m:["Cold Coffee","Hazelnut Cold Coffee"] },
+      { e:"🍫", n:"Hot Chocolate", w:"A warm cup of chocolate for when you just want comfort.", v:"Velvety & Sweet", m:["Coffee","Hot Chocolate"] }
+    ]
+  },
+  party: {
+    veg: [
+      { e:"🧋", n:"Baithack Special Cold Coffee", w:"Our house special. A fancy cold drink to raise a toast with.", v:"Bold & Indulgent", m:["Cold Coffee","Baithack Spl. Cold Coffee"] },
+      { e:"🎉", n:"Ultimate Cold Coffee", w:"Go big. The Ultimate Cold Coffee is made for celebrating.", v:"Loud & Indulgent", m:["Cold Coffee","Ultimate Cold Coffee"] },
+      { e:"🥪", n:"Paneer Tandoori Panini", w:"Hot, smoky and satisfying. A great party bite.", v:"Smoky & Hot", m:["Panini Sandwich","Paneer Tandoori"] },
+      { e:"🥪", n:"Paneer Tikka Panini", w:"Grilled hot and melty, the kind of snack that disappears fast at a get-together.", v:"Smoky & Melty", m:["Panini Sandwich","Paneer Tikka"] },
+      { e:"🥪", n:"Tandoori Tadka Sandwich (Cheese)", w:"A spicy, cheesy sandwich that keeps the energy up.", v:"Spicy & Cheesy", m:["Sandwich","Tandoori Tadka","Cheese"] },
+      { e:"🌰", n:"Hazelnut Cold Coffee", w:"A nutty, creamy cold coffee that feels like a treat.", v:"Nutty & Creamy", m:["Cold Coffee","Hazelnut Cold Coffee"] }
+    ],
+    jain: [
+      { e:"🧋", n:"Baithack Special Cold Coffee", w:"Our house special. A fancy cold drink to raise a toast with.", v:"Bold & Indulgent", m:["Cold Coffee","Baithack Spl. Cold Coffee"] },
+      { e:"🎉", n:"Ultimate Cold Coffee", w:"Go big. The Ultimate Cold Coffee is made for celebrating.", v:"Loud & Indulgent", m:["Cold Coffee","Ultimate Cold Coffee"] },
+      { e:"🌰", n:"Hazelnut Cold Coffee", w:"A nutty, creamy cold coffee that feels like a treat.", v:"Nutty & Creamy", m:["Cold Coffee","Hazelnut Cold Coffee"] },
+      { e:"🍮", n:"Caramel Cold Coffee", w:"Smooth, sweet caramel coffee, easy to share the mood with.", v:"Smooth & Sweet", m:["Cold Coffee","Caramel Cold Coffee"] },
+      { e:"🍫", n:"Chocolate Cold Coffee", w:"Chocolate and coffee together. A crowd-pleaser.", v:"Sweet & Chocolatey", m:["Cold Coffee","Chocolate Cold Coffee"] },
+      { e:"☕", n:"Cold Coffee", w:"Classic cold coffee. Add an ice-cream scoop for ₹30 extra to make it a party drink.", v:"Creamy & Cool", m:["Cold Coffee","Cold Coffee"] }
+    ]
+  },
+  study: {
+    veg: [
+      { e:"☕", n:"Strong Cold Coffee", w:"Extra strong and ice cold. A real kick to get you through the next chapter.", v:"Bold & Awake", m:["Cold Coffee","Strong Cold Coffee"] },
+      { e:"☕", n:"Strong Hot Coffee", w:"Straightforward and strong. Keeps you going through a long night.", v:"Bold & Steady", m:["Coffee","Strong Hot Coffee"] },
+      { e:"☕", n:"Black Coffee", w:"No sugar, no fuss, just focus.", v:"Sharp & Simple", m:["Coffee","Black Coffee"] },
+      { e:"🌰", n:"Hazelnut Coffee", w:"A smooth, nutty cup that keeps you steady while you read.", v:"Nutty & Smooth", m:["Coffee","Hazelnut Coffee"] },
+      { e:"🥪", n:"Veg. Mayo Sandwich", w:"A quick bite you can eat one-handed while you work.", v:"Quick & Easy", m:["Sandwich","Veg. Mayo","Regular"] },
+      { e:"🥪", n:"Coleslaw Panini", w:"A light, crunchy panini that won't weigh you down mid-study.", v:"Light & Crunchy", m:["Panini Sandwich","Coleslaw Panini"] }
+    ],
+    jain: [
+      { e:"☕", n:"Strong Cold Coffee", w:"Extra strong and ice cold. A real kick to get you through the next chapter.", v:"Bold & Awake", m:["Cold Coffee","Strong Cold Coffee"] },
+      { e:"☕", n:"Strong Hot Coffee", w:"Straightforward and strong. Keeps you going through a long night.", v:"Bold & Steady", m:["Coffee","Strong Hot Coffee"] },
+      { e:"☕", n:"Black Coffee", w:"No sugar, no fuss, just focus.", v:"Sharp & Simple", m:["Coffee","Black Coffee"] },
+      { e:"🌰", n:"Hazelnut Coffee", w:"A smooth, nutty cup that keeps you steady while you read.", v:"Nutty & Smooth", m:["Coffee","Hazelnut Coffee"] },
+      { e:"☕", n:"Hot Coffee", w:"A classic hot coffee. Simple fuel for a long session.", v:"Classic & Warm", m:["Coffee","Hot Coffee"] },
+      { e:"🫖", n:"Black Tea", w:"A lighter caffeine option when coffee feels like too much.", v:"Light & Clear", m:["Black Tea","Black Tea"] }
+    ]
+  },
+  chill: {
+    veg: [
+      { e:"🦋", n:"Butterfly Pea Tea", w:"A calm, colourful tea that's relaxing to look at and to drink.", v:"Calm & Colourful", m:["Green Tea","Butterfly Pea"] },
+      { e:"🍓", n:"Strawberry Hibiscus Tea", w:"Fruity and refreshing. Easy to sip while you do nothing in particular.", v:"Fruity & Fresh", m:["Green Tea","Strawberry Hibiscus"] },
+      { e:"☕", n:"Cold Coffee", w:"Cool, creamy and easy. Just sit, sip and let the afternoon pass.", v:"Cool & Creamy", m:["Cold Coffee","Cold Coffee"] },
+      { e:"🍋", n:"Lemon Black Tea", w:"A light, zesty tea for a slow, relaxed moment.", v:"Zesty & Light", m:["Black Tea","Lemon Black Tea"] },
+      { e:"🥪", n:"Coleslaw Panini", w:"A light, crunchy panini that won't weigh you down. Good for a slow afternoon.", v:"Light & Crunchy", m:["Panini Sandwich","Coleslaw Panini"] },
+      { e:"🌸", n:"Kashmiri Kahwa", w:"A fragrant green tea. Slow, soothing and perfect for sitting back.", v:"Fragrant & Soothing", m:["Green Tea","Kashmiri Kahwa"] }
+    ],
+    jain: [
+      { e:"🦋", n:"Butterfly Pea Tea", w:"A calm, colourful tea that's relaxing to look at and to drink.", v:"Calm & Colourful", m:["Green Tea","Butterfly Pea"] },
+      { e:"🍓", n:"Strawberry Hibiscus Tea", w:"Fruity and refreshing. Easy to sip while you do nothing in particular.", v:"Fruity & Fresh", m:["Green Tea","Strawberry Hibiscus"] },
+      { e:"🌸", n:"Kashmiri Kahwa", w:"A fragrant green tea. Slow, soothing and perfect for sitting back.", v:"Fragrant & Soothing", m:["Green Tea","Kashmiri Kahwa"] },
+      { e:"🍋", n:"Lemon Black Tea", w:"A light, zesty tea for a slow, relaxed moment.", v:"Zesty & Light", m:["Black Tea","Lemon Black Tea"] },
+      { e:"☕", n:"Cold Coffee", w:"Cool, creamy and easy. Just sit, sip and let the afternoon pass.", v:"Cool & Creamy", m:["Cold Coffee","Cold Coffee"] },
+      { e:"🫖", n:"Black Tea", w:"Simple, light and calming. A quiet cup to unwind with.", v:"Simple & Calm", m:["Black Tea","Black Tea"] }
+    ]
+  }
+};
+
+/* More picks per mood, drawn from the categories each pool was missing */
+const MORE = {
+  cozy: {
+    veg: [
+      { e:"🍵", n:"Adrak Chai", w:"The classic rainy-day chai with a ginger kick. Hard to beat when it's pouring.", v:"Spicy & Warming", m:["Chai","Adrak Chai"] },
+      { e:"☕", n:"Hot Coffee", w:"A classic hot coffee for a quiet window seat and a grey sky.", v:"Classic & Warm", m:["Coffee","Hot Coffee"] },
+      { e:"🍫", n:"Chocolate Hot Coffee", w:"Coffee and chocolate, hot. Dessert and caffeine in one mug.", v:"Sweet & Cozy", m:["Coffee","Chocolate Hot Coffee"] }
+    ],
+    jain: [
+      { e:"☕", n:"Hot Coffee", w:"A classic hot coffee for a quiet window seat and a grey sky.", v:"Classic & Warm", m:["Coffee","Hot Coffee"] },
+      { e:"🍫", n:"Chocolate Hot Coffee", w:"Coffee and chocolate, hot. Dessert and caffeine in one mug.", v:"Sweet & Cozy", m:["Coffee","Chocolate Hot Coffee"] }
+    ]
+  },
+  tired: {
+    veg: [
+      { e:"🧋", n:"Baithack Special Cold Coffee", w:"Our house special. When the day has been too long, treat yourself.", v:"Bold & Indulgent", m:["Cold Coffee","Baithack Spl. Cold Coffee"] },
+      { e:"🍮", n:"Caramel Cold Coffee", w:"Smooth, sweet caramel coffee as a reward for getting through the day.", v:"Smooth & Sweet", m:["Cold Coffee","Caramel Cold Coffee"] },
+      { e:"🥪", n:"Paneer Tandoori Panini", w:"Hot, smoky and filling. A real meal when you have no energy to cook.", v:"Smoky & Filling", m:["Panini Sandwich","Paneer Tandoori"] },
+      { e:"🥪", n:"Veg Panini", w:"A hot, toasty panini. Easy comfort for a tired evening.", v:"Hot & Toasty", m:["Panini Sandwich","Veg Panini"] }
+    ],
+    jain: [
+      { e:"🍫", n:"Chocolate Hot Coffee", w:"Coffee and chocolate, hot. A small hug for a long day.", v:"Sweet & Cozy", m:["Coffee","Chocolate Hot Coffee"] },
+      { e:"☕", n:"Strong Choco Coffee", w:"Strong coffee with chocolate. Energy and comfort together.", v:"Bold & Comforting", m:["Coffee","Strong Choco Coffee"] },
+      { e:"🧋", n:"Baithack Special Cold Coffee", w:"Our house special. When the day has been too long, treat yourself.", v:"Bold & Indulgent", m:["Cold Coffee","Baithack Spl. Cold Coffee"] }
+    ]
+  },
+  party: {
+    veg: [
+      { e:"🍫", n:"Chocolate Cold Coffee", w:"Chocolate and coffee together. A crowd-pleaser for any group.", v:"Sweet & Chocolatey", m:["Cold Coffee","Chocolate Cold Coffee"] },
+      { e:"🍮", n:"Caramel Cold Coffee", w:"Smooth, sweet caramel coffee that keeps the good mood going.", v:"Smooth & Sweet", m:["Cold Coffee","Caramel Cold Coffee"] },
+      { e:"🥪", n:"Veg Panini", w:"Hot and toasty, a good snack to share the mood with.", v:"Hot & Toasty", m:["Panini Sandwich","Veg Panini"] },
+      { e:"🥪", n:"Corn Mayo Sandwich (Cheese)", w:"Creamy corn and cheese. An easy, happy bite for a get-together.", v:"Creamy & Cheesy", m:["Sandwich","Corn Mayo","Cheese"] }
+    ],
+    jain: [
+      { e:"🦋", n:"Butterfly Pea Tea", w:"A colour-changing tea that looks great in photos and starts conversations.", v:"Colourful & Fun", m:["Green Tea","Butterfly Pea"] },
+      { e:"🍓", n:"Strawberry Hibiscus Tea", w:"Bright, fruity and pink. A pretty drink for a celebration.", v:"Fruity & Fresh", m:["Green Tea","Strawberry Hibiscus"] }
+    ]
+  },
+  study: {
+    veg: [
+      { e:"☕", n:"Hot Coffee", w:"A classic hot coffee for a long session at the desk.", v:"Classic & Warm", m:["Coffee","Hot Coffee"] },
+      { e:"🍵", n:"Masala Chai", w:"Chai keeps many a night-owl going. Warm, familiar and awake.", v:"Warm & Awake", m:["Chai","Masala Chai"] },
+      { e:"🥪", n:"Veg Panini", w:"A hot bite that keeps hunger away without slowing you down.", v:"Hot & Handy", m:["Panini Sandwich","Veg Panini"] }
+    ],
+    jain: [
+      { e:"☕", n:"Cold Coffee", w:"Cold and creamy. A smooth way to stay awake.", v:"Cool & Creamy", m:["Cold Coffee","Cold Coffee"] },
+      { e:"🍮", n:"Caramel Coffee", w:"A sweeter hot coffee for when the books get boring.", v:"Sweet & Warm", m:["Coffee","Caramel Coffee"] }
+    ]
+  },
+  chill: {
+    veg: [
+      { e:"🌰", n:"Hazelnut Cold Coffee", w:"A nutty, creamy cold coffee for a slow, easy afternoon.", v:"Nutty & Creamy", m:["Cold Coffee","Hazelnut Cold Coffee"] },
+      { e:"🌹", n:"Rose Chai", w:"Soft, floral chai. A calm cup for a calm day.", v:"Floral & Gentle", m:["Chai","Rose Chai"] },
+      { e:"🥪", n:"Thousand Island Sandwich", w:"A light, easy sandwich to nibble on while you relax.", v:"Light & Tangy", m:["Sandwich","Thousand Island","Regular"] }
+    ],
+    jain: [
+      { e:"🍮", n:"Caramel Cold Coffee", w:"Smooth, sweet and cold. Very easy to sip slowly.", v:"Smooth & Sweet", m:["Cold Coffee","Caramel Cold Coffee"] },
+      { e:"🌹", n:"Rose Chai", w:"Soft, floral chai. A calm cup for a calm day.", v:"Floral & Gentle", m:["Chai","Rose Chai"] },
+      { e:"🌰", n:"Hazelnut Cold Coffee", w:"A nutty, creamy cold coffee for a slow, easy afternoon.", v:"Nutty & Creamy", m:["Cold Coffee","Hazelnut Cold Coffee"] }
+    ]
+  }
+};
+Object.entries(MORE).forEach(([mood, o]) => Object.entries(o).forEach(([diet, list]) => FOOD[mood][diet].push(...list)));
+
+/* Surprise mode: random picks from the whole menu (Extras excluded). Jain gets a conservative drink list. */
+const SURPRISE_INFO = {
+  "Chai":            { e:"🍵", w:"A kulhad classic. Hot, comforting and always a safe bet.", v:"Warm & Classic" },
+  "Cold Coffee":     { e:"🧋", w:"Cold, creamy and refreshing. An easy pick any time of day.", v:"Cool & Creamy" },
+  "Coffee":          { e:"☕", w:"A proper hot coffee for a slow sip.", v:"Hot & Bold" },
+  "Green Tea":       { e:"🍃", w:"A lighter, fragrant sip when you want something different.", v:"Light & Fragrant" },
+  "Black Tea":       { e:"🫖", w:"Simple, clean and easy to enjoy.", v:"Simple & Clean" },
+  "Sandwich":        { e:"🥪", w:"A filling sandwich for when you want a proper bite.", v:"Hearty & Filling" },
+  "Panini Sandwich": { e:"🥪", w:"A hot, toasty panini. Satisfying and easy.", v:"Hot & Toasty" }
+};
+const JAIN_SKIP = /ginger|adrak|tulsi|brownie|irish|masala chai|ukala|pan chai|special black tea/i;
+function surprisePool(diet){
+  return ITEMS.filter(i => SURPRISE_INFO[i.cat] && !i.mrp && i.variants.length
+    && (diet !== 'jain' || (['Chai','Cold Coffee','Coffee','Green Tea','Black Tea'].includes(i.cat) && !JAIN_SKIP.test(i.name))));
+}
+
+const DIET_TEXT = {
+  veg:    "Pure vegetarian picks, all from our menu",
+  jain:   "Jain-friendly drinks from our menu (chosen to avoid onion, garlic, ginger and root vegetables)",
+  nonveg: "Our menu doesn't list any non-veg dishes, so here are our best picks for you"
+};
+
+/* =============== MOOD PICKER =============== */
+const pk = { diet:null, mood:null, text:'', shown:[], surprise:false };
+function shuffle(a){ const r = a.slice(); for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; }
+
+Object.entries(MOODS).forEach(([key, m]) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.mood = key; b.setAttribute('aria-pressed','false'); b.textContent = m.emoji + ' ' + m.label;
+  $('moodChips').appendChild(b);
+});
+function pkGo(n){
+  [1,2,3].forEach(i => $('pk' + i).classList.toggle('show', i === n));
+  for (let i = 1; i <= 3; i++) { const d = $('pd' + i); d.classList.toggle('active', i === n); d.classList.toggle('done', i < n); d.textContent = i < n ? '✓' : i; }
+  $('pb1').classList.toggle('done', n > 1); $('pb2').classList.toggle('done', n > 2);
+  $('picker').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block:'start' });
+}
+$('dietOpts').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if (!b) return;
+  pk.diet = b.dataset.diet;
+  document.querySelectorAll('#dietOpts .opt').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+  $('pkTo2').disabled = false;
+});
+$('pkTo2').onclick = () => pkGo(2);
+$('pkBack1').onclick = () => pkGo(1);
+function pkReady(){ $('pkTo3').disabled = !(pk.mood || pk.text.trim().length >= 2); }
+$('moodChips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  pk.mood = pk.mood === b.dataset.mood ? null : b.dataset.mood;
+  document.querySelectorAll('#moodChips .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.mood === pk.mood ? 'true' : 'false'));
+  pkReady();
+});
+$('moodText').addEventListener('input', e => { pk.text = e.target.value; pkReady(); });
+
+function detectMoods(){
+  const sc = {}; Object.keys(MOODS).forEach(k => sc[k] = 0);
+  if (pk.mood) sc[pk.mood] += 3;
+  const t = ' ' + pk.text.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ') + ' ';
+  Object.entries(MOODS).forEach(([k, m]) => m.keys.forEach(w => { if (t.includes(w)) sc[k] += 1; }));
+  return Object.entries(sc).filter(([, s]) => s > 0).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+}
+const poolFor = (mood, diet) => FOOD[mood][diet === 'jain' ? 'jain' : 'veg'];
+/* Choose up to n items, preferring categories not already in `picks`, so results aren't all chai or all sandwiches */
+function takeDiverse(list, n, picks){
+  const out = [], cats = new Set(picks.map(p => p.m[0]));
+  const has = it => picks.some(p => p.n === it.n) || out.some(p => p.n === it.n);
+  list.forEach(i => { if (out.length < n && !cats.has(i.m[0]) && !has(i)) { out.push(i); cats.add(i.m[0]); } });
+  list.forEach(i => { if (out.length < n && !has(i)) out.push(i); });
+  return out;
+}
+function pickItems(){
+  const used = new Set(pk.shown);
+  const fresh = list => shuffle(list.filter(x => !used.has(x.n))).concat(shuffle(list.filter(x => used.has(x.n))));
+  const picks = [];
+  let pm = null, sm = null, fellBack = false;
+  if (pk.surprise) {
+    const pool = surprisePool(pk.diet).map(i => {
+      const info = SURPRISE_INFO[i.cat];
+      return { e:info.e, n:i.name, w:info.w, v:info.v, m:[i.cat, i.name] };
+    });
+    picks.push(...takeDiverse(fresh(pool), 3, picks));
+  } else {
+    const ranked = detectMoods(), primary = ranked[0] || null;
+    fellBack = !primary; pm = primary || 'chill'; sm = ranked[1] || null;
+    picks.push(...takeDiverse(fresh(poolFor(pm, pk.diet)), sm ? 2 : 3, picks));
+    if (sm) picks.push(...takeDiverse(fresh(poolFor(sm, pk.diet)), 3 - picks.length, picks));
+    if (picks.length < 3) picks.push(...takeDiverse(fresh(poolFor(pm, pk.diet)), 3 - picks.length, picks));
+  }
+  pk.shown = picks.map(x => x.n);
+  return { picks, pm, sm, fellBack, surprise: !!pk.surprise };
+}
+function renderPicks(){
+  const { picks, pm, sm, fellBack, surprise } = pickItems();
+  $('dietLine').textContent = DIET_TEXT[pk.diet];
+  $('vibeLine').textContent = surprise ? '🎲 Surprise! Three random picks from our menu'
+    : fellBack ? "We couldn't quite read that vibe, so here are some easy crowd-pleasers"
+    : 'Reading your vibe as ' + MOODS[pm].emoji + ' ' + MOODS[pm].label + (sm ? ' with a touch of ' + MOODS[sm].label : '');
+  const box = $('results'); box.innerHTML = '';
+  picks.forEach((it, i) => {
+    const el = document.createElement('article'); el.className = 'pick'; el.style.animationDelay = (i * 0.12) + 's';
+    const big = document.createElement('div'); big.className = 'big'; big.setAttribute('aria-hidden','true'); big.textContent = it.e;
+    const body = document.createElement('div'); body.style.minWidth = 0;
+    const name = document.createElement('div'); name.className = 'name'; name.textContent = it.n;
+    const why = document.createElement('p'); why.className = 'why'; why.textContent = it.w;
+    const tags = document.createElement('div'); tags.className = 'tags';
+    const vibe = document.createElement('span'); vibe.className = 'tag vibe'; vibe.textContent = it.v; tags.appendChild(vibe);
+    const cafe = document.createElement('span'); cafe.className = 'tag cafe'; cafe.textContent = '✓ On our menu'; tags.appendChild(cafe);
+    body.append(name, why, tags);
+
+    const ref = it.m, item = findItem(ref[0], ref[1]);
+    if (item && !item.mrp && item.variants.length) {
+      const row = document.createElement('div'); row.className = 'addrow';
+      let v = ref[2] ? vIndex(item, ref[2]) : 0;
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'mini-add';
+      const label = () => 'Add ' + item.name + (vText(item, v) ? ' (' + vText(item, v) + ')' : '') + ' · ' + fmt(item.variants[v].p);
+      btn.textContent = label();
+      if (item.variants.length > 1) {
+        const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Choose option for ' + item.name);
+        item.variants.forEach((x, i) => { const o = document.createElement('option'); o.value = i; o.textContent = x.l + ' · ' + fmt(x.p); sel.appendChild(o); });
+        sel.value = v; sel.onchange = () => { v = +sel.value; btn.textContent = label(); }; row.appendChild(sel);
+      }
+      btn.onclick = () => addToCart(item, v, btn);
+      row.appendChild(btn); body.appendChild(row);
+    }
+    el.append(big, body); box.appendChild(el);
+  });
+  let note = 'Every pick above is on our current menu. Availability can vary, so please check with the counter.';
+  if (pk.diet === 'jain') note += ' We picked drinks for Jain because we can’t promise Jain preparation for sandwiches. Please confirm with the counter that your order has no onion, garlic, ginger or root vegetables.';
+  if (pk.diet === 'nonveg') note += ' Our menu has no non-veg dishes listed right now.';
+  $('pkNote').textContent = note;
+}
+$('pkTo3').onclick = () => { pk.surprise = false; pk.shown = []; renderPicks(); pkGo(3); };
+$('pkSurprise').onclick = () => { pk.surprise = true; pk.shown = []; renderPicks(); pkGo(3); };
+$('pkShuffle').onclick = renderPicks;
+$('pkRestart').onclick = () => {
+  pk.diet = null; pk.mood = null; pk.text = ''; pk.shown = []; pk.surprise = false; $('moodText').value = '';
+  document.querySelectorAll('#dietOpts .opt, #moodChips .chip').forEach(b => b.setAttribute('aria-pressed','false'));
+  $('pkTo2').disabled = true; $('pkTo3').disabled = true; pkGo(1);
+};
+
+/* =============== INIT =============== */
+loadCart();
+buildMenu();
+buildList();
+holder.appendChild(makePlate(DISHES[0]));
+renderInfo();
+renderCart();
+shownTotal = cartTotal(); setTotals(shownTotal);
+markTab();
+</script>
+</body>
+</html>
